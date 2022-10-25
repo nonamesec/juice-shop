@@ -171,7 +171,9 @@ module.exports.deluxeToken = deluxeToken
 
 exports.isAccounting = () => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const decodedToken = verify(utils.jwtFrom(req)) && decode(utils.jwtFrom(req))
+    const jwt = utils.jwtFrom(req);
+    if(!jwt) return res.status(401).send('Unauthorized');
+    const decodedToken = verify(jwt) && decode(jwt)
     if (decodedToken?.data?.role === exports.roles.accounting) {
       next()
     } else {
@@ -181,12 +183,16 @@ exports.isAccounting = () => {
 }
 
 exports.isDeluxe = (req: Request) => {
-  const decodedToken = verify(utils.jwtFrom(req)) && decode(utils.jwtFrom(req))
+  const jwt = utils.jwtFrom(req);
+  if(!jwt) return false;
+  const decodedToken = verify(jwt) && decode(jwt)
   return decodedToken?.data?.role === exports.roles.deluxe && decodedToken?.data?.deluxeToken && decodedToken?.data?.deluxeToken === deluxeToken(decodedToken?.data?.email)
 }
 
 exports.isCustomer = (req: Request) => {
-  const decodedToken = verify(utils.jwtFrom(req)) && decode(utils.jwtFrom(req))
+  const jwt = utils.jwtFrom(req);
+  if(!jwt) return false;
+  const decodedToken = verify(jwt) && decode(jwt)
   return decodedToken?.data?.role === exports.roles.customer
 }
 
